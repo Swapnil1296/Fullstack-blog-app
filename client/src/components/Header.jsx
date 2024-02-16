@@ -37,7 +37,9 @@ const Header = () => {
         </Button>
 
         <Link to="/sign-in">
-          <Button gradientDuoTone="purpleToBlue">Sing In</Button>
+          <Button gradientDuoTone="purpleToBlue" outline>
+            Sing In
+          </Button>
         </Link>
         <Navbar.Toggle />
       </div>

@@ -22,3 +22,16 @@ app.listen(3000, () => {
 app.use(express.json());
 
 app.use("/api/auth", authRoute);
+
+
+// customize middleware to send the error response to every controller using next()
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const errorMessage = err.message || "Internal Server Error";
+
+  res.status(statusCode).json({
+    success: false,
+    statusCode,
+    errorMessage,
+  });
+});

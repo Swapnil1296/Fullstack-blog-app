@@ -1,7 +1,9 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
-const userRoutes = require("./routes/userRoute");
+import express from "express";
+import mongoose from "mongoose";
+//import { mongoose } from 'mongoose';
+import dotenv from "dotenv";
+
+import authRoute from "./routes/authRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -17,5 +19,6 @@ mongoose
 app.listen(3000, () => {
   console.log(`server is running on  ${port}`);
 });
+app.use(express.json());
 
-app.use("/api/user", userRoutes);
+app.use("/api/auth", authRoute);

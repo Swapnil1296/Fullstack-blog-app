@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import About from "./pages/About";
 import Header from "./components/Header";
+import PrivateRoute from "./components/PrivateRoute";
 
 const App = () => {
   return (
@@ -17,7 +18,9 @@ const App = () => {
         <Route path="/about" Component={About} />
         <Route path="/sign-up" Component={SingUp} />
         <Route path="/sign-in" Component={SignIn} />
-        <Route path="/dashboard" Component={Dashboard} />
+        <Route element={<PrivateRoute />}>
+          <Route path="/dashboard" Component={Dashboard} />
+        </Route>
         <Route path="/projects" Component={Projects} />
       </Routes>
     </BrowserRouter>

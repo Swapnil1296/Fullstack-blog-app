@@ -109,9 +109,7 @@ const DashPost = () => {
                       {post.title}
                     </Link>
                   </Table.Cell>
-                  <Table.Cell className="capitalize">
-                    {post.category}
-                  </Table.Cell>
+                  <Table.Cell>{post.category}</Table.Cell>
                   <Table.Cell>
                     <span
                       className="font-medium text-red-500 hover:underline cursor-pointer"

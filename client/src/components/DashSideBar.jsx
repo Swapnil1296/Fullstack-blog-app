@@ -12,6 +12,7 @@ import { Link, useLocation } from "react-router-dom";
 // import { signoutSuccess } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
+import { signoutSuccess } from "../redux/user/userSlice";
 
 export default function DashSidebar() {
   const location = useLocation();
@@ -34,7 +35,7 @@ export default function DashSidebar() {
       if (!res.ok) {
         console.log(data.message);
       } else {
-        // dispatch(signoutSuccess());
+        dispatch(signoutSuccess());
       }
     } catch (error) {
       console.log(error.message);

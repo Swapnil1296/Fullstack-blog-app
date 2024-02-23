@@ -59,7 +59,11 @@ const SingUp = () => {
           </p>
         </div>
         <div className="flex-1">
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+          <form
+            className="flex flex-col gap-4"
+            onSubmit={handleSubmit}
+            autoComplete="off"
+          >
             <div>
               <Label value="Your Username" />
               <TextInput

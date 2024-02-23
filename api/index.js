@@ -4,8 +4,9 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 
-import authRoute from "./routes/authRoutes.js";
-import userRoute from "./routes/userRoute.js";
+import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoute.js";
+import postRoutes from "./routes/createPostRoute.js";
 
 dotenv.config();
 const app = express();
@@ -24,8 +25,9 @@ app.listen(3000, () => {
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api/auth", authRoute);
-app.use("/api/user", userRoute);
+app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/post", postRoutes);
 
 
 // customize middleware to send the error response to every controller using next()

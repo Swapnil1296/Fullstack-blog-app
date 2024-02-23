@@ -24,7 +24,7 @@ import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { Link } from "react-router-dom";
 
 export default function DashProfile() {
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, error, loading } = useSelector((state) => state.user);
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const [imageFileUploadProgress, setImageFileUploadProgress] = useState(null);
@@ -50,17 +50,7 @@ export default function DashProfile() {
   }, [imageFile]);
 
   const uploadImage = async () => {
-    // service firebase.storage {
-    //   match /b/{bucket}/o {
-    //     match /{allPaths=**} {
-    //       allow read;
-    //       allow write: if
-    //       request.resource.size < 2 * 1024 * 1024 &&
-    //       request.resource.contentType.matches('image/.*')
-    //     }
-    //   }
-    // }
-    setImageFileUploading(true);
+    ageFileUploading(true);
     setImageFileUploadError(null);
     const storage = getStorage(app);
     const fileName = new Date().getTime() + imageFile.name;
@@ -238,9 +228,9 @@ export default function DashProfile() {
           type="submit"
           gradientDuoTone="purpleToBlue"
           outline
-          // disabled={loading || imageFileUploading}
+          disabled={loading || imageFileUploading}
         >
-          {/* {loading ? "Loading..." : "Update"} */}
+          {loading ? "Loading..." : "Update"}
         </Button>
         {currentUser.isAdmin && (
           <Link to={"/create-post"}>
@@ -272,11 +262,11 @@ export default function DashProfile() {
           {updateUserError}
         </Alert>
       )}
-      {/* {error && (
+      {error && (
         <Alert color="failure" className="mt-5">
           {error}
         </Alert>
-      )} */}
+      )}
       <Modal
         show={showModal}
         onClose={() => setShowModal(false)}

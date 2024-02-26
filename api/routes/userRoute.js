@@ -1,4 +1,5 @@
 import {
+  getUsers,
   signOut,
   test,
   updateUser,
@@ -13,5 +14,6 @@ router.get("/test", test);
 router.put("/update/:userId", verifyToken, updateUser);
 router.delete("/delete/:userId", verifyToken, userDelete);
 router.post("/signout", signOut);
+router.get("/getusers", verifyToken, getUsers);
 
 export default router;

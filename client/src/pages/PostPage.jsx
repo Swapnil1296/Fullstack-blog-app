@@ -5,10 +5,10 @@ import CallToAction from "../components/CallToAction";
 import CommentSection from "../components/CommentSection";
 const PostPage = () => {
   const { postSlug } = useParams();
-  const [post, setPost] = useState(null);
+  const [post, setPost] = useState("");
   const [loading, setLoading] = useState(null);
   const [erorr, setError] = useState(false);
-  console.log(post);
+ 
 
   useEffect(() => {
     const fetchPost = async () => {

@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoute.js";
 import postRoutes from "./routes/createPostRoute.js";
+import commentRoutes from "./routes/comment.route.js";
 
 dotenv.config();
 const app = express();
@@ -28,6 +29,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/post", postRoutes);
+app.use("/api/comment", commentRoutes);
 
 
 // customize middleware to send the error response to every controller using next()

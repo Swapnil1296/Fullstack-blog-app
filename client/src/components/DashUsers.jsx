@@ -2,6 +2,7 @@ import { Button, Modal, Table } from "flowbite-react";
 import React, { useEffect, useState } from "react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { useSelector } from "react-redux";
+import { FaCheck, FaTimes } from "react-icons/fa";
 
 const DashUsers = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -9,7 +10,6 @@ const DashUsers = () => {
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [userIdToDelete, setUserIdToDelete] = useState("");
-  console.log(users);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -35,7 +35,7 @@ const DashUsers = () => {
     try {
       const res = await fetch(`/api/user/getusers?startIndex=${startIndex}`);
       const data = await res.json();
-      console.log(data);
+
       if (res.ok) {
         setUsers((prev) => [...prev, ...data.users]);
         if (data.users.length < 9) {
@@ -44,6 +44,21 @@ const DashUsers = () => {
       }
     } catch (error) {
       console.log(error.message);
+    }
+  };
+  const handleDeleteUser = async () => {
+    try {
+      const res = await fetch(`/api/user/delete/${userIdToDelete}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setUsers((prev) => prev.filter((user) => user._id !== userIdToDelete));
+        setShowModal(false);
+        console.log(data.message);
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -56,11 +71,9 @@ const DashUsers = () => {
               <Table.HeadCell>Date Created</Table.HeadCell>
               <Table.HeadCell>Admin Image</Table.HeadCell>
               <Table.HeadCell>Username</Table.HeadCell>
+              <Table.HeadCell>Email</Table.HeadCell>
               <Table.HeadCell>Admin</Table.HeadCell>
               <Table.HeadCell>Delete</Table.HeadCell>
-              <Table.HeadCell>
-                <span>Edit</span>
-              </Table.HeadCell>
             </Table.Head>
             {users.map((user) => (
               <Table.Body className="divide-y" key={user._id}>
@@ -72,13 +85,19 @@ const DashUsers = () => {
                     <img
                       src={user.profilePicture}
                       alt={user.username}
-                      className="w-20 h-10 object-cover bg-gray-500"
+                      className="w-10 h-10 object-cover bg-gray-500 rounded-full"
                     />
                   </Table.Cell>
 
                   <Table.Cell>{user.username}</Table.Cell>
                   <Table.Cell>{user.email}</Table.Cell>
-                  <Table.Cell>{user.isAdmin}</Table.Cell>
+                  <Table.Cell>
+                    {user.isAdmin ? (
+                      <FaCheck className="text-gray-100" />
+                    ) : (
+                      <FaTimes className="text-gray-300" />
+                    )}
+                  </Table.Cell>
                   <Table.Cell>
                     <span
                       className="font-medium text-red-500 hover:underline cursor-pointer"
@@ -104,7 +123,7 @@ const DashUsers = () => {
           )}
         </>
       ) : (
-        <p>You dont hanve any posts yet</p>
+        <p>There are no users to show</p>
       )}
       <Modal
         show={showModal}
@@ -117,10 +136,17 @@ const DashUsers = () => {
           <div className="text-center">
             <HiOutlineExclamationCircle className="h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto" />
             <h3 className="mb-5 text-lg text-gray-500 dark:text-gray-400">
-              Are you sure you want to delete this post?
+              Are you sure you want to delete this user?
             </h3>
             <div className="flex justify-center gap-4">
-              <Button color="failure">Yes, I'm sure</Button>
+              <Button
+                color="failure"
+                onClick={() => {
+                  handleDeleteUser(), setShowModal(false);
+                }}
+              >
+                Yes, I'm sure
+              </Button>
               <Button color="gray" onClick={() => setShowModal(false)}>
                 No, cancel
               </Button>

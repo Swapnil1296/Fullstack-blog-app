@@ -12,25 +12,27 @@ import OnlyAdminPrivatRoute from "./components/OnlyAdminPrivatRoute";
 import CreatePost from "./components/CreatePost";
 import FooterComp from "./components/Footer";
 import UpdatePost from "./components/UpdatePost";
+import PostPage from "./pages/PostPage";
 
 const App = () => {
   return (
     <BrowserRouter>
       <Header />
       <Routes>
-        <Route path="/" Component={Home} />
-        <Route path="/about" Component={About} />
-        <Route path="/sign-up" Component={SingUp} />
-        <Route path="/sign-in" Component={SignIn} />
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/sign-up" element={<SingUp />} />
+        <Route path="/sign-in" element={<SignIn />} />
 
         <Route element={<PrivateRoute />}>
-          <Route path="/dashboard" Component={Dashboard} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Route>
         <Route element={<OnlyAdminPrivatRoute />}>
-          <Route path="/create-post" Component={CreatePost} />
-          <Route path="/update-post/:postId" Component={UpdatePost} />
+          <Route path="/create-post" element={<CreatePost />} />
+          <Route path="/update-post/:postId" element={<UpdatePost />} />
         </Route>
-        <Route path="/projects" Component={Projects} />
+        <Route path="/projects" element={<Projects />} />
+        <Route path="/post/:postSlug" element={<PostPage />} />
       </Routes>
       <FooterComp />
     </BrowserRouter>

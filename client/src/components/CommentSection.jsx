@@ -1,13 +1,27 @@
 import { Alert, Button, Spinner, Textarea } from "flowbite-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import Comments from "./Comments";
 
 const CommentSection = ({ postId }) => {
   const [comment, setComment] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(null);
+  const [commentOnPosts, setCommnetOnPost] = useState("");
   const { currentUser } = useSelector((state) => state.user);
+  useEffect(() => {
+    const getComments = async () => {
+      try {
+        const res = await fetch(`/api/comment//getPostComments/${postId}`);
+        const data = await res.json();
+        setCommnetOnPost(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getComments();
+  }, [postId]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -28,10 +42,12 @@ const CommentSection = ({ postId }) => {
         }),
       });
       const data = await res.json();
+      console.log(data);
       setLoading(false);
       if (res.ok) {
         setComment("");
         setError(null);
+        setCommnetOnPost([data, ...commentOnPosts]);
       }
     } catch (error) {
       setError(error);
@@ -92,6 +108,30 @@ const CommentSection = ({ postId }) => {
           </div>
           {error && <Alert color="failure">{error}</Alert>}
         </form>
+      )}
+      {commentOnPosts.length === 0 ? (
+        <p className="text-sm my-5">No comments yet!</p>
+      ) : (
+        <>
+          <div className="text-sm my-5 flex items-center gap-1  f">
+            <p className="font-bold">Comments</p>
+            <div className="border border-gray-400 py-1 px-2 rounded-full bg-slate-100">
+              <p>{commentOnPosts.length}</p>
+            </div>
+          </div>
+          {commentOnPosts.map((comment) => (
+            <Comments
+              key={comment._id}
+              comment={comment}
+              // onLike={handleLike}
+              // onEdit={handleEdit}
+              // onDelete={(commentId) => {
+              //   setShowModal(true);
+              //   setCommentToDelete(commentId);
+              // }}
+            />
+          ))}
+        </>
       )}
     </div>
   );

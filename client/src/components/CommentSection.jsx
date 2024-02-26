@@ -1,7 +1,7 @@
 import { Alert, Button, Spinner, Textarea } from "flowbite-react";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Comments from "./Comments";
 
 const CommentSection = ({ postId }) => {
@@ -10,6 +10,9 @@ const CommentSection = ({ postId }) => {
   const [loading, setLoading] = useState(null);
   const [commentOnPosts, setCommnetOnPost] = useState("");
   const { currentUser } = useSelector((state) => state.user);
+  const [showModal, setShowModal] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState(null);
+  const navigate = useNavigate();
   useEffect(() => {
     const getComments = async () => {
       try {
@@ -52,6 +55,61 @@ const CommentSection = ({ postId }) => {
     } catch (error) {
       setError(error);
       setLoading(false);
+    }
+  };
+  const handleLike = async (commentId) => {
+    try {
+      if (!currentUser) {
+        navigate("/sign-in");
+        return;
+      }
+      const res = await fetch(`/api/comment/likeComment/${commentId}`, {
+        method: "PUT",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCommnetOnPost(
+          commentOnPosts.map((comment) =>
+            comment._id === commentId
+              ? {
+                  ...comment,
+                  likes: data.likes,
+                  numberOfLikes: data.likes.length,
+                }
+              : comment
+          )
+        );
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+  const handleEdit = async (comment, editedContent) => {
+    setCommnetOnPost(
+      commentOnPosts.map((c) =>
+        c._id === comment._id ? { ...c, content: editedContent } : c
+      )
+    );
+  };
+
+  const handleDelete = async (commentId) => {
+    setShowModal(false);
+    try {
+      if (!currentUser) {
+        navigate("/sign-in");
+        return;
+      }
+      const res = await fetch(`/api/comment/deleteComment/${commentId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCommnetOnPost(
+          commentOnPosts.filter((comment) => comment._id !== commentId)
+        );
+      }
+    } catch (error) {
+      console.log(error.message);
     }
   };
   if (loading)
@@ -123,12 +181,12 @@ const CommentSection = ({ postId }) => {
             <Comments
               key={comment._id}
               comment={comment}
-              // onLike={handleLike}
-              // onEdit={handleEdit}
-              // onDelete={(commentId) => {
-              //   setShowModal(true);
-              //   setCommentToDelete(commentId);
-              // }}
+              onLike={handleLike}
+              onEdit={handleEdit}
+              onDelete={(commentId) => {
+                setShowModal(true);
+                setCommentToDelete(commentId);
+              }}
             />
           ))}
         </>

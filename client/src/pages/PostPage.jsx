@@ -1,9 +1,10 @@
-import { Button, Spinner } from "flowbite-react";
+import { Button, Modal, Spinner } from "flowbite-react";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import CallToAction from "../components/CallToAction";
 import CommentSection from "../components/CommentSection";
 import PostCard from "../components/PostCard";
+import TextToSpeech from "../TextToSpeech/TextToSpeech";
 
 const PostPage = () => {
   const { postSlug } = useParams();
@@ -11,6 +12,8 @@ const PostPage = () => {
   const [loading, setLoading] = useState(null);
   const [erorr, setError] = useState(false);
   const [recentPost, setRecentPost] = useState(null);
+  const [currentPost, setCurrentPost] = useState(post);
+  const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -25,6 +28,7 @@ const PostPage = () => {
         }
         if (res.ok) {
           setPost(data.posts[0]);
+
           setLoading(false);
           setError(false);
         }
@@ -40,7 +44,6 @@ const PostPage = () => {
       try {
         const res = await fetch("/api/post/getposts?limit=3");
         const data = await res.json();
-        console.log(data);
 
         if (res.ok) {
           setRecentPost(data.posts);
@@ -60,8 +63,12 @@ const PostPage = () => {
         <Spinner size={"xl"} />
       </div>
     );
+
   return (
     <main className="p-3 flex flex-col max-w-6xl mx-auto min-h-screen">
+      <Button className="rounded-full w-20" onClick={() => setOpenModal(true)}>
+        Text to Speech
+      </Button>
       <h1 className="text-3xl mt-10 p-3 text-center font-serif max-w-2xl mx-auto lg:text-4x">
         {post && post.title}
       </h1>
@@ -99,6 +106,14 @@ const PostPage = () => {
           {recentPost &&
             recentPost.map((post) => <PostCard key={post._id} post={post} />)}
         </div>
+      </div>
+      <div>
+        <Modal show={openModal} onClose={() => setOpenModal(false)}>
+          <Modal.Header>Terms of Service</Modal.Header>
+          <Modal.Body>
+            <TextToSpeech text={post.content} />
+          </Modal.Body>
+        </Modal>
       </div>
     </main>
   );

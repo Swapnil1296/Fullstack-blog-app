@@ -65,9 +65,10 @@ export const signin = async (req, res, next) => {
       { id: validUser._id, isAdmin: validUser.isAdmin },
       process.env.JWT_SECRET_KEY,
       {
-        expiresIn: "24h",
+        expiresIn: "1m",
       }
     );
+    console.log(token);
     //setting token to browser cookies.
     res
       .status(200)

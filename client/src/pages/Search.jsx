@@ -1,5 +1,5 @@
 import { Button, Select, TextInput } from "flowbite-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
 
@@ -12,8 +12,30 @@ const Search = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showMore, setShowMore] = useState(false);
+  const [otherInput, setOtherInput] = useState(false);
+  const [categorries, setCategorries] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const inputRef = useRef();
+  console.log("sidebar: ", sideBarData);
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [otherInput]);
+  useEffect(() => {
+    const fetchPostForCategory = async () => {
+      try {
+        const res = await fetch(`/api/post/getposts`);
+        const data = await res.json();
+
+        if (res.ok) {
+          setCategorries(data.posts.map((post) => post.category));
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+    fetchPostForCategory();
+  }, []);
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const searchTermFromUrl = urlParams.get("searchTerm");
@@ -31,9 +53,10 @@ const Search = () => {
       setLoading(true);
       try {
         const searchQuery = urlParams.toString();
+        console.log("searchQuery:-", searchQuery);
         const res = await fetch(`/api/post/getposts?${searchQuery}`);
         const data = await res.json();
-        console.log(data);
+        console.log("data: " + data.posts);
         if (!res.ok) {
           setLoading(false);
           return;
@@ -95,7 +118,11 @@ const Search = () => {
       }
     }
   };
-
+  const handlekeyPress = (event) => {
+    if (event.keyCode === 8 && formData.category === "") {
+      setOtherInput(false);
+    }
+  };
   return (
     <div className="flex flex-col md:flex-row">
       <div className="p-7 border-b md:border-r md:min-h-screen border-gray-500">
@@ -121,16 +148,48 @@ const Search = () => {
           </div>
           <div className="flex items-center gap-2">
             <label className="font-semibold">Category:</label>
-            <Select
-              onChange={handleChange}
-              value={sideBarData.category}
-              id="category"
-            >
-              <option value="uncategorized">Uncategorized</option>
-              <option value="react">React.js</option>
-              <option value="next">Next.js</option>
-              <option value="javascript">JavaScript</option>
-            </Select>
+            {otherInput ? (
+              <TextInput
+                ref={inputRef}
+                placeholder="Enter a Category"
+                type="text"
+                onChange={(e) => {
+                  setSideBarData({ ...sideBarData, category: e.target.value });
+                }}
+                onBlur={() =>
+                  formData.category === undefined && setOtherInput(false)
+                }
+                onKeyDown={handlekeyPress}
+              />
+            ) : (
+              <Select
+                onChange={(e) => {
+                  e.target.value === "other"
+                    ? setOtherInput(true)
+                    : setSideBarData({
+                        ...sideBarData,
+                        category: e.target.value,
+                      });
+                }}
+              >
+                <option disabled selected>
+                  Select a Category
+                </option>
+                {categorries &&
+                  // removing duplicates from categories list
+                  Array.isArray(categorries) &&
+                  Array.from(new Set(categorries)).map((item, index) => (
+                    <option
+                      value={item}
+                      key={item + index}
+                      className="uppercase"
+                    >
+                      {item}
+                    </option>
+                  ))}
+                <option value="other">Others</option>
+              </Select>
+            )}
           </div>
           <Button type="submit" outline gradientDuoTone="purpleToPink">
             Apply Filters

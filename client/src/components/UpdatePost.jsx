@@ -8,7 +8,7 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { useNavigate, useParams } from "react-router-dom";
@@ -19,12 +19,19 @@ export default function UpdatePost() {
   const [imageUploadProgress, setImageUploadProgress] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
   const [formData, setFormData] = useState({});
+  const [otherInput, setOtherInput] = useState(false);
+  const [categorries, setCategorries] = useState(null);
+
   const [publishError, setPublishError] = useState(null);
   const { postId } = useParams();
 
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
+  const inputRef = useRef();
 
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [otherInput]);
   useEffect(() => {
     try {
       const fetchPost = async () => {
@@ -46,6 +53,21 @@ export default function UpdatePost() {
       console.log(error.message);
     }
   }, [postId]);
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const res = await fetch(`/api/post/getposts`);
+        const data = await res.json();
+
+        if (res.ok) {
+          setCategorries(data.posts.map((post) => post.category));
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+    fetchPost();
+  }, []);
 
   const handleUpdloadImage = async () => {
     try {
@@ -110,7 +132,22 @@ export default function UpdatePost() {
       setPublishError("Something went wrong");
     }
   };
+  const handlekeyPress = (event) => {
+    if (event.keyCode === 8 && formData.category === "") {
+      setOtherInput(false);
+    }
+  };
+  console.log(otherInput);
   console.log(formData.category);
+  const removeDuplicates = (arr) => {
+    let unique = [];
+    arr.forEach((element) => {
+      if (!unique.includes(element)) {
+        unique.push(element);
+      }
+    });
+    return unique;
+  };
   return (
     <div className="p-3 max-w-3xl mx-auto min-h-screen">
       <h1 className="text-center text-3xl my-7 font-semibold">Update post</h1>
@@ -127,17 +164,40 @@ export default function UpdatePost() {
             }
             value={formData.title}
           />
-          <Select
-            onChange={(e) =>
-              setFormData({ ...formData, category: e.target.value })
-            }
-            value={formData.category}
-          >
-            <option value="uncategorized">Select a category</option>
-            <option value="javascript">JavaScript</option>
-            <option value="reactjs">React.js</option>
-            <option value="nextjs">Next.js</option>
-          </Select>
+          {otherInput ? (
+            <TextInput
+              ref={inputRef}
+              placeholder="Enter a Category"
+              type="text"
+              onChange={(e) => {
+                setFormData({ ...formData, category: e.target.value });
+              }}
+              onBlur={() => setOtherInput(false)}
+              onKeyDown={handlekeyPress}
+            />
+          ) : (
+            <Select
+              value={formData.category}
+              onChange={(e) => {
+                e.target.value === "other"
+                  ? setOtherInput(true)
+                  : setFormData({ ...formData, category: e.target.value });
+              }}
+            >
+              <option disabled selected>
+                Select a Category
+              </option>
+              {categorries &&
+                // removing duplicates from categories list
+                Array.isArray(categorries) &&
+                Array.from(new Set(categorries)).map((item, index) => (
+                  <option value={item} key={item + index}>
+                    {item}
+                  </option>
+                ))}
+              <option value="other">Others</option>
+            </Select>
+          )}
         </div>
         <div className="flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3">
           <FileInput

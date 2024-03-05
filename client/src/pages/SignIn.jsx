@@ -1,5 +1,6 @@
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import React, { useState } from "react";
+import { BiSolidHide, BiSolidShow } from "react-icons/bi";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -14,6 +15,7 @@ const SignIn = () => {
   const [formData, setFormData] = useState({});
   // const [errorMessage, setErrorMessage] = useState(null);
   // const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { loading, error: errorMessage } = useSelector((state) => state.user);
@@ -25,6 +27,7 @@ const SignIn = () => {
     e.preventDefault();
     // setLoading(true);
     // setErrorMessage(null);
+    setShowPassword(false);
     dispatch(signInStart());
     if (!formData.email || !formData.password) {
       //return setErrorMessage("Please fill all the field.");
@@ -51,9 +54,13 @@ const SignIn = () => {
     } catch (error) {
       //setErrorMessage(error.errorMessage);
       // setLoading(false);
+
       dispatch(signInFailure(error.errorMessage));
       //console.log("error:", error.message);
     }
+  };
+  const handlePasswordShow = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -62,9 +69,9 @@ const SignIn = () => {
         <div className="flex-1">
           <Link to="/" className=" font-bold  dark:text-white text-4xl">
             <span className="px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white">
-              Swapnil's
+              Random
             </span>
-            Blog
+            Blogs
           </Link>
           <p className="text-sm mt-5">
             This is a Demo Project . You can Sing In with your email & password
@@ -88,12 +95,27 @@ const SignIn = () => {
             </div>
             <div>
               <Label value="Your Password" />
-              <TextInput
-                type="password"
-                placeholder="**********"
-                id="password"
-                onChange={handelChange}
-              />
+              <div className="flex  justify-center items-center gap-2">
+                <div className="flex-1">
+                  <TextInput
+                    type={showPassword ? "text" : "password"}
+                    placeholder="**********"
+                    id="password"
+                    onChange={handelChange}
+                  />
+                </div>
+                <div className="flex-2">
+                  {showPassword ? (
+                    <Button onClick={handlePasswordShow}>
+                      <BiSolidShow size="18px" />
+                    </Button>
+                  ) : (
+                    <Button onClick={handlePasswordShow}>
+                      <BiSolidHide size="18px" />
+                    </Button>
+                  )}
+                </div>
+              </div>
             </div>
             <Button gradientDuoTone="purpleToPink" type="submit">
               {loading ? (

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Alert, Button, FileInput, Select, TextInput } from "flowbite-react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -17,10 +17,34 @@ const CreatePost = () => {
   const [file, setFile] = useState(null);
   const [imageUploadProgress, setImageUploadProgress] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
+  const [otherInput, setOtherInput] = useState(false);
+  const [categorries, setCategorries] = useState(null);
+
   const [formData, setFormData] = useState({});
-  console.log(formData);
+
   const [publishError, setPublishError] = useState(null);
   const navigate = useNavigate();
+  const inputRef = useRef();
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [otherInput]);
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const res = await fetch(`/api/post/getposts`);
+        const data = await res.json();
+
+        if (res.ok) {
+          setCategorries(data.posts.map((post) => post.category));
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+    fetchPost();
+  }, []);
+
   const handleUpdloadImage = async () => {
     try {
       if (!file) {
@@ -57,6 +81,11 @@ const CreatePost = () => {
       console.log(error);
     }
   };
+  const handlekeyPress = (event) => {
+    if (event.keyCode === 8 && formData.category === "") {
+      setOtherInput(false);
+    }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -81,6 +110,9 @@ const CreatePost = () => {
       setPublishError("Something went wrong");
     }
   };
+
+  console.log(formData.category);
+
   return (
     <div className="p-3 max-w-3xl mx-auto min-h-screen">
       <h1 className="text-center text-3xl font-semibold">Create a Post</h1>
@@ -101,17 +133,42 @@ const CreatePost = () => {
               setFormData({ ...formData, title: e.target.value })
             }
           />
-          <Select
-            onChange={(e) =>
-              setFormData({ ...formData, category: e.target.value })
-            }
-          >
-            <option value="uncatergorized">Select a Category</option>
-            <option value="javascript">Javascript</option>
-            <option value="react">React JS</option>
-            <option value="nextjs">Next JS</option>
-            <option value="nodejs">Node JS</option>
-          </Select>
+
+          {otherInput ? (
+            <TextInput
+              ref={inputRef}
+              placeholder="Enter a Category"
+              type="text"
+              onChange={(e) => {
+                setFormData({ ...formData, category: e.target.value });
+              }}
+              onBlur={() =>
+                formData.category === undefined && setOtherInput(false)
+              }
+              onKeyDown={handlekeyPress}
+            />
+          ) : (
+            <Select
+              onChange={(e) => {
+                e.target.value === "other"
+                  ? setOtherInput(true)
+                  : setFormData({ ...formData, category: e.target.value });
+              }}
+            >
+              <option disabled selected>
+                Select a Category
+              </option>
+              {categorries &&
+                // removing duplicates from categories list
+                Array.isArray(categorries) &&
+                Array.from(new Set(categorries)).map((item, index) => (
+                  <option value={item} key={item + index} className="uppercase">
+                    {item}
+                  </option>
+                ))}
+              <option value="other">Others</option>
+            </Select>
+          )}
         </div>
         <div className="flex gap-4 items-center justify-between border-4 border-dotted p-3 border-teal-500">
           <FileInput

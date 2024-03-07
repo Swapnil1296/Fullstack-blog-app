@@ -65,7 +65,7 @@ export const signin = async (req, res, next) => {
       { id: validUser._id, isAdmin: validUser.isAdmin },
       process.env.JWT_SECRET_KEY,
       {
-        expiresIn: "1m",
+        expiresIn: "1h",
       }
     );
     console.log(token);

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { useSelector } from "react-redux";
 import { FaCheck, FaTimes } from "react-icons/fa";
+import { TbFileDownload } from "react-icons/tb";
 
 const DashUsers = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -61,11 +62,50 @@ const DashUsers = () => {
       console.log(error);
     }
   };
+  const handleExport = () => {
+    const headings = ["User Id", "Username", "Email", "isAdmin"];
+
+    const excludeKeys = (obj, keysToExclude) => {
+      const newObj = { ...obj };
+      keysToExclude.forEach((key) => delete newObj[key]);
+      return newObj;
+    };
+
+    // Specify the keys you want to exclude from the CSV export
+    const keysToExclude = ["createdAt", "updatedAt", "__v", "profilePicture"];
+
+    // Create a new array with excluded keys
+    const filteredData = users.map((row) => excludeKeys(row, keysToExclude));
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      headings.join(",") +
+      "\n" +
+      filteredData.map((row) => Object.values(row).join(",")).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "exported_data.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  console.log("users", users);
 
   return (
     <div className="table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500">
       {currentUser.isAdmin && users.length > 0 ? (
         <>
+          <div className="flex justify-center items-center gap-2 ">
+            <p className="font-bold">You can downlode the data by clicking </p>
+            <span>
+              <TbFileDownload
+                size={20}
+                className="hover:cursor-pointer"
+                onClick={handleExport}
+              />
+            </span>
+          </div>
           <Table hoverable className="shadow-md">
             <Table.Head>
               <Table.HeadCell>Date Created</Table.HeadCell>
